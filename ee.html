@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البنك الرقمي | النخبة المصرفية</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- خط Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- أيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #0b1120; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .bank-card-gold { background: linear-gradient(135deg, #d97706 0%, #78350f 100%); }
+        .bank-card-blue { background: linear-gradient(135deg, #1e40af 0%, #1e1b4b 100%); }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        .nav-link.active { color: #f59e0b; border-bottom: 2px solid #f59e0b; }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col justify-between">
+
+    <!-- 1. شريط الملاحة العلوي (Navbar) -->
+    <header id="main-header" class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- الشعار -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('dashboard')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-extrabold text-xl shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-wide text-white">بنك البركة الرقمي</h1>
+                    <p class="text-[10px] text-amber-400 tracking-widest uppercase">Al-Baraka Digital Bank</p>
+                </div>
+            </div>
+
+            <!-- القائمة الرئيسية (تعمل بالكامل الآن) -->
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <button onclick="navigateTo('dashboard')" id="nav-dashboard" class="nav-link active pb-1 text-slate-400 hover:text-white transition">الرئيسية</button>
+                <button onclick="navigateTo('accounts')" id="nav-accounts" class="nav-link pb-1 text-slate-400 hover:text-white transition">الحسابات</button>
+                <button onclick="navigateTo('transfers')" id="nav-transfers" class="nav-link pb-1 text-slate-400 hover:text-white transition">التحويلات</button>
+                <button onclick="navigateTo('bills')" id="nav-bills" class="nav-link pb-1 text-slate-400 hover:text-white transition">المدفوعات</button>
+                <button onclick="navigateTo('cards')" id="nav-cards" class="nav-link pb-1 text-slate-400 hover:text-white transition">البطاقات</button>
+            </nav>
+
+            <!-- معلومات المستخدم الخروج -->
+            <div class="flex items-center gap-4">
+                <button onclick="openTransferModal()" class="hidden sm:flex bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs transition items-center gap-1 shadow-lg shadow-amber-500/10">
+                    <i class="fa-solid fa-paper-plane"></i> تحويل
+                </button>
+
+                <div class="flex items-center gap-3 pr-2 border-r border-slate-800">
+                    <div class="w-9 h-9 rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 font-bold" id="user-avatar">
+                        ع
+                    </div>
+                    <div class="hidden sm:block">
+                        <p class="text-sm font-bold text-white leading-tight" id="user-name-display">علي</p>
+                        <p class="text-[11px] text-slate-400" id="user-type-display">حساب ذهبي</p>
+                    </div>
+                </div>
+
+                <button onclick="logout()" title="تسجيل الخروج" class="p-2 text-rose-400 hover:text-rose-300 rounded-lg hover:bg-rose-500/10 transition">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- 2. المحتوى الرئيسي لجميع الصفحات -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
+
+        <!-- ================= PAGE 1: صفحة تسجيل الدخول ================= -->
+        <section id="page-login" class="page-section active max-w-md mx-auto py-12">
+            <div class="glass-card rounded-3xl p-8 shadow-2xl border border-slate-700">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-extrabold text-3xl mx-auto mb-4 shadow-lg shadow-amber-500/20">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white">تسجيل الدخول</h2>
+                    <p class="text-slate-400 text-xs mt-1">أدخل بيانات حسابك المصرفي للوصول للخدمات</p>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-2">اسم المستخدم / البريد</label>
+                        <div class="relative">
+                            <i class="fa-regular fa-user absolute right-4 top-3.5 text-slate-500"></i>
+                            <input type="text" id="login-username" value="علي" required placeholder="أدخل اسم المستخدم"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pr-11 pl-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-2">كلمة المرور</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute right-4 top-3.5 text-slate-500"></i>
+                            <input type="password" id="login-password" value="123456" required placeholder="••••••••"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pr-11 pl-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs">
+                        <label class="flex items-center gap-2 text-slate-400 cursor-pointer">
+                            <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-amber-500"> تذكرني
+                        </label>
+                        <a href="#" onclick="alert('يرجى التواصل مع الدعم الفني لإعادة تعيين كلمة المرور')" class="text-amber-400 hover:underline">نسيت كلمة المرور؟</a>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-amber-500/20 mt-2">
+                        الدخول للحساب المصرفي
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+                    <p class="text-xs text-slate-400">ليس لديك حساب بعد؟ 
+                        <button onclick="navigateTo('register')" class="text-amber-400 font-bold hover:underline">فتح حساب جديد / إضافة مستخدم</button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: صفحة إضافة مستخدم / إنشاء حساب ================= -->
+        <section id="page-register" class="page-section max-w-lg mx-auto py-8">
+            <div class="glass-card rounded-3xl p-8 shadow-2xl border border-slate-700">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-extrabold text-white">فتح حساب مصرفي جديد</h2>
+                    <p class="text-slate-400 text-xs mt-1">انضم لخدمات بنك البركة الرقمية خلال دقائق</p>
+                </div>
+
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">الاسم الكامل</label>
+                            <input type="text" id="reg-fullname" required placeholder="مثال: محمد علي"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">نوع الحساب</label>
+                            <select id="reg-account-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                                <option value="حساب جاري">حساب جاري</option>
+                                <option value="حساب توفير">حساب توفير</option>
+                                <option value="حساب أعمال">حساب أعمال</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="reg-email" required placeholder="user@example.com"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">كلمة المرور</label>
+                            <input type="password" id="reg-password" required placeholder="••••••••"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">الإيداع الأولي ($)</label>
+                            <input type="number" id="reg-balance" required min="100" value="1000"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-bold text-amber-400 focus:outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-amber-500/20 mt-4">
+                        إنشاء الحساب وتأكيد التسجيل
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+                    <p class="text-xs text-slate-400">لديك حساب بالفعل؟ 
+                        <button onclick="navigateTo('login')" class="text-amber-400 font-bold hover:underline">تسجيل الدخول</button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: لوحة التحكم الرئيسية (Dashboard) ================= -->
+        <section id="page-dashboard" class="page-section">
+            <div class="glass-card rounded-2xl p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-r-4 border-r-amber-500">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white">مرحباً بك، <span id="dash-user-name">علي</span> 👋</h2>
+                    <p class="text-slate-400 text-xs mt-1">ملخص النشاط المصرفي للحساب الجاري والتوفير</p>
+                </div>
+                <div class="bg-slate-900/60 px-6 py-3 rounded-xl border border-slate-800 flex items-center gap-4 w-full md:w-auto justify-between">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-0.5">الرصيد الإجمالي الكلي</span>
+                        <div class="flex items-center gap-2">
+                            <span id="total-balance-display" class="text-3xl font-black text-amber-400">68,910.20</span>
+                            <span class="text-sm font-bold text-slate-400">$</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleBalanceVisibility()" class="text-slate-400 hover:text-white p-2">
+                        <i id="eye-icon" class="fa-regular fa-eye text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- كروت الحسابات والبطاقات -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bank-card-blue rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between h-48 border border-blue-400/20">
+                            <div class="flex justify-between items-start z-10">
+                                <div>
+                                    <span class="text-xs text-blue-200 uppercase block">الحساب الجاري الرئيسي</span>
+                                    <span class="text-xs font-mono text-slate-300">YE93 8000 0123 4567</span>
+                                </div>
+                                <i class="fa-brands fa-cc-visa text-3xl text-white/80"></i>
+                            </div>
+                            <div class="z-10">
+                                <span class="text-xs text-blue-200">الرصيد المتاح</span>
+                                <div class="text-2xl font-extrabold text-white mt-1">
+                                    <span class="balance-num">68,910.20</span> $
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs text-blue-200 z-10 pt-2 border-t border-white/10">
+                                <span>صالح لغاية: 12/28</span>
+                                <span class="bg-blue-500/30 px-2.5 py-1 rounded-full text-white font-medium">نشط</span>
+                            </div>
+                        </div>
+
+                        <div class="glass-card rounded-2xl p-6 shadow-xl flex flex-col justify-between h-48 border border-slate-700">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-xs text-slate-400 uppercase block">حساب التوفير</span>
+                                    <span class="text-xs font-mono text-slate-400">YE93 8000 0987 6543</span>
+                                </div>
+                                <i class="fa-solid fa-piggy-bank text-2xl text-amber-400"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400">الرصيد المكتسب</span>
+                                <div class="text-2xl font-extrabold text-white mt-1">7,929.80 $</div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs text-slate-400 pt-2 border-t border-slate-800">
+                                <span>الأرباح: +4.2%</span>
+                                <span class="text-emerald-400 font-bold">+320.00 $ هذا الشهر</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- المعاملات الأخيرة -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-amber-400"></i> آخر المعاملات
+                            </h3>
+                            <button onclick="navigateTo('transfers')" class="text-xs text-amber-400 hover:underline">عرض الكل</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-slate-900/50 text-slate-400 text-xs border-b border-slate-800">
+                                    <tr>
+                                        <th class="py-3 px-4">تفاصيل العملية</th>
+                                        <th class="py-3 px-4">التاريخ</th>
+                                        <th class="py-3 px-4">المبلغ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-transactions-list" class="divide-y divide-slate-800">
+                                    <!-- يتم ملؤها بالـ JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- شريط الجانب -->
+                <div class="space-y-6">
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-bold text-lg text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-400"></i> عمليات سريعة
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="navigateTo('transfers')" class="bg-slate-900/60 hover:bg-slate-800 p-4 rounded-xl border border-slate-800 text-center transition">
+                                <i class="fa-solid fa-paper-plane text-xl text-amber-400 mb-2 block"></i>
+                                <span class="text-xs font-bold text-slate-300">تحويل مال</span>
+                            </button>
+                            <button onclick="navigateTo('bills')" class="bg-slate-900/60 hover:bg-slate-800 p-4 rounded-xl border border-slate-800 text-center transition">
+                                <i class="fa-solid fa-file-invoice-dollar text-xl text-blue-400 mb-2 block"></i>
+                                <span class="text-xs font-bold text-slate-300">فواتير</span>
+                            </button>
+                            <button onclick="navigateTo('cards')" class="bg-slate-900/60 hover:bg-slate-800 p-4 rounded-xl border border-slate-800 text-center transition">
+                                <i class="fa-solid fa-credit-card text-xl text-emerald-400 mb-2 block"></i>
+                                <span class="text-xs font-bold text-slate-300">بطاقاتي</span>
+                            </button>
+                            <button onclick="navigateTo('register')" class="bg-slate-900/60 hover:bg-slate-800 p-4 rounded-xl border border-slate-800 text-center transition">
+                                <i class="fa-solid fa-user-plus text-xl text-purple-400 mb-2 block"></i>
+                                <span class="text-xs font-bold text-slate-300">إضافة عميل</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: صفحة إدارة الحسابات ================= -->
+        <section id="page-accounts" class="page-section">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white">إدارة الحسابات البنكية</h2>
+                    <p class="text-xs text-slate-400">استعرض جميع حساباتك الفرعية والرئيسية</p>
+                </div>
+                <button onclick="navigateTo('register')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm transition">
+                    + فتح حساب جديد
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-2xl border-t-4 border-t-blue-500">
+                    <span class="text-xs text-slate-400">الحساب الجاري الرئيسي</span>
+                    <h3 class="text-2xl font-black text-white my-2"><span class="balance-num">68,910.20</span> $</h3>
+                    <p class="text-xs font-mono text-slate-400 mb-4">IBAN: YE93 8000 0123 4567 8901</p>
+                    <button onclick="openTransferModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded-lg font-bold">إجراء تحويل من هذا الحساب</button>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border-t-4 border-t-amber-500">
+                    <span class="text-xs text-slate-400">حساب التوفير الاستثماري</span>
+                    <h3 class="text-2xl font-black text-white my-2">7,929.80 $</h3>
+                    <p class="text-xs font-mono text-slate-400 mb-4">IBAN: YE93 8000 0987 6543 2109</p>
+                    <button onclick="alert('حساب التوفير محمي ولا يترتب عليه رسوم تحويل')" class="w-full bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded-lg font-bold">تفاصيل الأرباح</button>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border-t-4 border-t-emerald-500">
+                    <span class="text-xs text-slate-400">حساب العملات الأجنبية (EUR)</span>
+                    <h3 class="text-2xl font-black text-white my-2">2,450.00 €</h3>
+                    <p class="text-xs font-mono text-slate-400 mb-4">IBAN: YE93 8000 5544 3322 1100</p>
+                    <button onclick="alert('سعر الصرف الحالي: 1 EUR = 1.08 USD')" class="w-full bg-slate-800 hover:bg-slate-700 text-xs py-2 rounded-lg font-bold">تحويل عملة</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 5: صفحة التحويلات ================= -->
+        <section id="page-transfers" class="page-section">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="glass-card p-6 rounded-2xl border border-slate-700">
+                    <h2 class="text-xl font-extrabold text-white mb-4">إجراء تحويل مالي فوري</h2>
+                    <form onsubmit="executeTransferPage(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">اسم المستفيد</label>
+                            <input type="text" id="page-transfer-name" required placeholder="اسم الشخص"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">رقم الحساب / IBAN</label>
+                            <input type="text" required placeholder="YE93 0000..."
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">المبلغ ($)</label>
+                            <input type="number" id="page-transfer-amount" required min="1" step="0.01" placeholder="0.00"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-bold text-amber-400 focus:outline-none focus:border-amber-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-2">ملاحظة / السبب</label>
+                            <input type="text" placeholder="مثال: سداد خدمات"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-xl text-sm transition">
+                                تأكيد التحويل الآن
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl">
+                    <h3 class="font-bold text-white mb-4">سجل التحويلات الكامل</h3>
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-slate-900/50 text-slate-400 text-xs">
+                            <tr>
+                                <th class="py-3 px-4">المستفيد</th>
+                                <th class="py-3 px-4">التاريخ</th>
+                                <th class="py-3 px-4">المبلغ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-transactions-list" class="divide-y divide-slate-800">
+                            <!-- ملء بالـ JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 6: صفحة المدفوعات ================= -->
+        <section id="page-bills" class="page-section">
+            <h2 class="text-2xl font-extrabold text-white mb-6">سداد الفواتير والخدمات</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card p-6 rounded-2xl text-center hover:border-amber-400 transition cursor-pointer" onclick="payBill('فاتورة الكهرباء والماء', 45)">
+                    <i class="fa-solid fa-lightbulb text-4xl text-amber-400 mb-3"></i>
+                    <h3 class="font-bold text-white">الكهرباء والماء</h3>
+                    <p class="text-xs text-slate-400 mt-1">سداد سريع ملموس</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover:border-amber-400 transition cursor-pointer" onclick="payBill('فواتير الإنترنت والهاتف', 30)">
+                    <i class="fa-solid fa-wifi text-4xl text-blue-400 mb-3"></i>
+                    <h3 class="font-bold text-white">الإنترنت والهاتف</h3>
+                    <p class="text-xs text-slate-400 mt-1">تجديد الاشتراك</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover:border-amber-400 transition cursor-pointer" onclick="payBill('الرسوم الحكومية', 120)">
+                    <i class="fa-solid fa-building-flag text-4xl text-emerald-400 mb-3"></i>
+                    <h3 class="font-bold text-white">الرسوم الحكومية</h3>
+                    <p class="text-xs text-slate-400 mt-1">خدمات الجوازات والمرور</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl text-center hover:border-amber-400 transition cursor-pointer" onclick="payBill('جامعة إب - الرسوم الدراسية', 250)">
+                    <i class="fa-solid fa-graduation-cap text-4xl text-purple-400 mb-3"></i>
+                    <h3 class="font-bold text-white">الرسوم الجامعية</h3>
+                    <p class="text-xs text-slate-400 mt-1">سداد الأقساط</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 7: صفحة البطاقات ================= -->
+        <section id="page-cards" class="page-section">
+            <h2 class="text-2xl font-extrabold text-white mb-6">بطاقاتي المصرفية</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
+                <div class="bank-card-gold rounded-3xl p-6 shadow-2xl h-56 flex flex-col justify-between border border-amber-300/30">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-bold text-amber-100">بطاقة النخبة الماسية</span>
+                        <i class="fa-solid fa-microchip text-3xl text-amber-200"></i>
+                    </div>
+                    <div class="text-xl font-mono text-white tracking-widest my-4">
+                        •••• •••• •••• 8890
+                    </div>
+                    <div class="flex justify-between items-end text-xs text-amber-100">
+                        <div>
+                            <span class="block opacity-75">حامل البطاقة</span>
+                            <span class="font-bold text-sm text-white uppercase" id="card-holder-name">علي</span>
+                        </div>
+                        <div>
+                            <span class="block opacity-75">تاريخ الانتهاء</span>
+                            <span class="font-bold text-white">09/29</span>
+                        </div>
+                        <i class="fa-brands fa-cc-mastercard text-3xl text-white"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl space-y-4">
+                    <h3 class="font-bold text-white">إعدادات الأمان للبطاقة</h3>
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <span class="text-xs text-slate-300">الشراء عبر الإنترنت</span>
+                        <input type="checkbox" checked class="w-5 h-5 accent-amber-500">
+                    </div>
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <span class="text-xs text-slate-300">السحب النقدي اليومي (مفعل)</span>
+                        <input type="checkbox" checked class="w-5 h-5 accent-amber-500">
+                    </div>
+                    <button onclick="alert('تم تجميد البطاقة بنجاح لحمايتها.')" class="w-full bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 font-bold py-2.5 rounded-xl text-xs transition">
+                        تجميد البطاقة مؤقتاً
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 3. ترويسة السفلى (Footer) -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 بنك البركة الرقمي - جميع الحقوق محفوظة | مشروع تصميم واجهات الويب</p>
+    </footer>
+
+    <!-- 4. نافذة التحويل المنبثقة السريعة (Modal) -->
+    <div id="transfer-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="glass-card rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl relative border border-slate-700">
+            <button onclick="closeTransferModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <h3 class="text-xl font-extrabold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane text-amber-400"></i> تحويل سريع
+            </h3>
+            <p class="text-xs text-slate-400 mb-6">قم بإدخال اسم المستفيد والمبلغ المطلوب.</p>
+
+            <form onsubmit="executeQuickTransfer(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-300 font-bold mb-2">اسم المستفيد</label>
+                    <input type="text" id="modal-receiver-name" required placeholder="مثال: احمد علي"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 font-bold mb-2">المبلغ ($)</label>
+                    <input type="number" id="modal-transfer-amount" required min="1" step="0.01" placeholder="0.00"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-bold text-amber-400 focus:outline-none focus:border-amber-400">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl text-sm transition">تأكيد وإرسال</button>
+                    <button type="button" onclick="closeTransferModal()" class="w-full bg-slate-800 text-slate-300 font-bold py-3 rounded-xl text-sm">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. منطق البرمجة (JavaScript) -->
+    <script>
+        // حالة التطبيق (State)
+        let currentUser = null;
+        let currentBalance = 68910.20;
+        let isBalanceHidden = false;
+
+        let transactionsList = [
+            { name: "إيداع راتب شهري", date: "2026-09-15", amount: 3500.00, type: "plus" },
+            { name: "مشتريات Amazon", date: "2026-09-14", amount: 284.00, type: "minus" }
+        ];
+
+        // التوجيه والتنقل بين الصفحات
+        function navigateTo(pageId) {
+            // إخفاء كافة الصفحات
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            
+            // إزالة التنشيط عن روابط القائمة
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            // إظهار الصفحة المطلوبة
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) targetPage.classList.add('active');
+
+            // تنشيط رابط النوافذ
+            const activeNav = document.getElementById(`nav-${pageId}`);
+            if (activeNav) activeNav.classList.add('active');
+
+            // التحكم بإظهار الهيدر
+            const header = document.getElementById('main-header');
+            if (pageId === 'login' || pageId === 'register') {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        // تسجيل الدخول
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            currentUser = username;
+
+            updateUserInterface();
+            navigateTo('dashboard');
+        }
+
+        // إنشاء حساب جديد / إضافة مستخدم
+        function handleRegister(event) {
+            event.preventDefault();
+            const fullname = document.getElementById('reg-fullname').value;
+            const balanceInput = parseFloat(document.getElementById('reg-balance').value);
+
+            currentUser = fullname;
+            currentBalance = balanceInput;
+
+            alert(`تم إنشاء الحساب بنجاح! مرحباً بك يا ${fullname}`);
+            updateUserInterface();
+            navigateTo('dashboard');
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            currentUser = null;
+            navigateTo('login');
+        }
+
+        // تحديث البيانات في الواجهات
+        function updateUserInterface() {
+            if (!currentUser) return;
+            
+            document.getElementById('user-name-display').textContent = currentUser;
+            document.getElementById('dash-user-name').textContent = currentUser;
+            document.getElementById('card-holder-name').textContent = currentUser;
+            document.getElementById('user-avatar').textContent = currentUser.charAt(0);
+            
+            renderBalances();
+            renderTransactions();
+        }
+
+        // تحديث الأرصدة
+        function renderBalances() {
+            const formatted = isBalanceHidden ? "••••••" : currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2 });
+            document.getElementById('total-balance-display').textContent = formatted;
+            
+            document.querySelectorAll('.balance-num').forEach(el => {
+                el.textContent = formatted;
+            });
+        }
+
+        // إظهار/إخفاء الرصيد
+        function toggleBalanceVisibility() {
+            isBalanceHidden = !isBalanceHidden;
+            const eyeIcon = document.getElementById('eye-icon');
+            eyeIcon.className = isBalanceHidden ? "fa-regular fa-eye-slash text-lg" : "fa-regular fa-eye text-lg";
+            renderBalances();
+        }
+
+        // عرض المعاملات
+        function renderTransactions() {
+            const recentContainer = document.getElementById('recent-transactions-list');
+            const fullContainer = document.getElementById('full-transactions-list');
+            
+            if (!recentContainer) return;
+
+            let html = "";
+            transactionsList.forEach(item => {
+                const isPlus = item.type === "plus";
+                const colorClass = isPlus ? "text-emerald-400" : "text-rose-400";
+                const sign = isPlus ? "+" : "-";
+                const icon = isPlus ? "fa-arrow-down-left text-emerald-400 bg-emerald-500/10" : "fa-arrow-up-right text-rose-400 bg-rose-500/10";
+
+                html += `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="py-4 px-4 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center ${icon}">
+                                <i class="fa-solid ${isPlus ? 'fa-arrow-down' : 'fa-arrow-up'} text-xs"></i>
+                            </div>
+                            <span class="font-bold text-white">${item.name}</span>
+                        </td>
+                        <td class="py-4 px-4 text-slate-400 text-xs">${item.date}</td>
+                        <td class="py-4 px-4 font-bold ${colorClass}">${sign} $${item.amount.toLocaleString('en-US')}</td>
+                    </tr>
+                `;
+            });
+
+            recentContainer.innerHTML = html;
+            if (fullContainer) fullContainer.innerHTML = html;
+        }
+
+        // تنفيذ التحويل السريع (من النافذة المنبثقة)
+        function executeQuickTransfer(e) {
+            e.preventDefault();
+            const name = document.getElementById('modal-receiver-name').value;
+            const amount = parseFloat(document.getElementById('modal-transfer-amount').value);
+            processTransfer(name, amount);
+            closeTransferModal();
+        }
+
+        // تنفيذ التحويل من صفحة التحويلات
+        function executeTransferPage(e) {
+            e.preventDefault();
+            const name = document.getElementById('page-transfer-name').value;
+            const amount = parseFloat(document.getElementById('page-transfer-amount').value);
+            processTransfer(name, amount);
+        }
+
+        // معالجة التحويل المالي
+        function processTransfer(receiver, amount) {
+            if (amount > currentBalance) {
+                alert('عذراً، الرصيد غير كافٍ!');
+                return;
+            }
+
+            currentBalance -= amount;
+            const today = new Date().toISOString().split('T')[0];
+
+            transactionsList.unshift({
+                name: `تحويل إلى ${receiver}`,
+                date: today,
+                amount: amount,
+                type: "minus"
+            });
+
+            alert(`تم تحويل مبلغ $${amount} بنجاح إلى ${receiver}`);
+            renderBalances();
+            renderTransactions();
+        }
+
+        // سداد فاتورة
+        function payBill(billTitle, amount) {
+            if (confirm(`هل تؤكد دفع ${billTitle} بمبلغ $${amount}؟`)) {
+                processTransfer(billTitle, amount);
+            }
+        }
+
+        // فتح وإغلاق Modal التحويل
+        function openTransferModal() {
+            document.getElementById('transfer-modal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transfer-modal').classList.add('hidden');
+        }
+
+        // تشغيل الصفحة عند البدء على صفحة التسجيل/الدخول
+        window.onload = () => {
+            navigateTo('login');
+        };
+    </script>
+</body>
+</html>
